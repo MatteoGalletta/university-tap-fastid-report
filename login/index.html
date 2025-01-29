@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+    
+        .container {
+            background-color: #fff;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+    
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+    </style>
+    <link type="text/css" rel="stylesheet" href="css/spid-button.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+<body style="margin: 0;">
+    <div class="container" style="max-width: 400px">
+        <div style="text-align: center;">
+            <img src="img/fastid.jpg" width="200" />
+        </div>
+        <form id="myForm">
+            <label for="datetime" class="form-label">Timestamp</label>
+            <input type="datetime-local" id="datetime" name="datetime"
+                class="form-control form-control-lg mb-3" value="2024-12-07T08:00" required>
+            
+            <label for="username" class="form-label">Username</label>
+            <select id="username" name="username" class="form-select form-select-lg mb-4" required>
+                <option value="infallible_nicotra">infallible_nicotra</option>
+                <option value="clever_alaimo">clever_alaimo</option>
+                <option value="jolly_alessi">jolly_alessi</option>
+                <option value="magical_allegra">magical_allegra</option>
+                <option value="quizzical_barbanera">quizzical_barbanera</option>
+                <option value="festive_battiato">festive_battiato</option>
+                <option value="trusting_bella">trusting_bella</option>
+                <option value="nifty_bilotta">nifty_bilotta</option>
+                <option value="fervent_cacciola">fervent_cacciola</option>
+                <option value="ecstatic_catalano">ecstatic_catalano</option>
+                <option value="quirky_cavallaro">quirky_cavallaro</option>
+                <option value="charming_cilia">charming_cilia</option>
+                <option value="elastic_cirmi">elastic_cirmi</option>
+                <option value="brave_cutello">brave_cutello</option>
+                <option value="bold_dimaria">bold_dimaria</option>
+                <option value="flamboyant_diraimondo">flamboyant_diraimondo</option>
+                <option value="reverent_esposito">reverent_esposito</option>
+                <option value="amazing_falsaperla">amazing_falsaperla</option>
+                <option value="sharp_fanciullo">sharp_fanciullo</option>
+                <option value="zen_fargetta">zen_fargetta</option>
+                <option value="great_farinella">great_farinella</option>
+                <option value="stoic_faro">stoic_faro</option>
+                <option value="epic_furnari">epic_furnari</option>
+                <option value="lucid_gallo">lucid_gallo</option>
+                <option value="loving_guarnera">loving_guarnera</option>
+                <option value="exciting_guarnera">exciting_guarnera</option>
+                <option value="gifted_leonardi">gifted_leonardi</option>
+                <option value="determined_loreto">determined_loreto</option>
+                <option value="zealous_madonia">zealous_madonia</option>
+                <option value="elegant_marino">elegant_marino</option>
+                <option value="nervous_messina">nervous_messina</option>
+                <option value="sad_mongiovì">sad_mongiovì</option>
+                <option value="relaxed_mosconi">relaxed_mosconi</option>
+                <option value="recursing_naselli">recursing_naselli</option>
+                <option value="infallible_nicotra">infallible_nicotra</option>
+                <option value="naughty_ortis">naughty_ortis</option>
+                <option value="interesting_pappalardo">interesting_pappalardo</option>
+                <option value="happy_pavone">happy_pavone</option>
+                <option value="upbeat_piccitto">upbeat_piccitto</option>
+                <option value="keen_pulvirenti">keen_pulvirenti</option>
+                <option value="xenodochial_ragusa">xenodochial_ragusa</option>
+                <option value="agitated_riccobene">agitated_riccobene</option>
+                <option value="intelligent_ruggieri">intelligent_ruggieri</option>
+                <option value="pensive_russo">pensive_russo</option>
+                <option value="mystifying_santamaria">mystifying_santamaria</option>
+                <option value="funny_santoro">funny_santoro</option>
+                <option value="laughing_santoro">laughing_santoro</option>
+                <option value="hardcore_spadaro">hardcore_spadaro</option>
+                <option value="goofy_spata">goofy_spata</option>
+                <option value="angry_stanco">angry_stanco</option>
+                <option value="vibrant_tramontana">vibrant_tramontana</option>
+                <option value="wonderful_verga">wonderful_verga</option>
+                <option value="boring_viagrande">boring_viagrande</option>
+                <option value="wizardly_viola">wizardly_viola</option>
+                <option value="stupefied_zappalà">stupefied_zappalà</option>
+                <option value="busy_raeli">busy_raeli</option>
+                <option value="sleepy_ballatore">sleepy_ballatore</option>
+                <option value="competent_magnificorettore">competent_magnificorettore</option>            </select>
+
+            <div class="d-flex justify-content-center">
+                <button type="submit" href="#" class="italia-it-button italia-it-button-size-l button-spid">
+                    <span id="buttonIcon" class="italia-it-button-icon"><img src="img/spid-ico-circle-bb.svg" onerror="this.src='img/spid-ico-circle-bb.png'; this.onerror=null;" alt="" /></span>
+                    <span class="italia-it-button-text">Entra con SPID</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('myForm').addEventListener('submit', function(event) {
+            event.preventDefault();  // Evita il comportamento predefinito del form
+
+            const datetime = document.getElementById('datetime').value;
+            const username = document.getElementById('username').value;
+
+            const data = {
+            	Date: datetime,
+                InstanceCode: 'FastID_PUB_01',
+                InstanceType: 'PUB',
+                User_Id: 5,
+                User_Name: username,
+                Type: 'spid',
+                AttrSet: 'A',
+                Response_Assertion_AuthnContextClassRef: 'L2',
+                uniqueIdpIdentity: 'PTIT1234567890'
+            };
+
+            const url = 'http://localhost:9880/transactions';
+            
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open('POST', url, true);
+            xmlHttp.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
+            
+            xmlHttp.onreadystatechange = function() {
+                if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+                    // Successo
+                    console.log('Success: sent ', data);
+                } else if (xmlHttp.readyState == 4) {
+                    // Errore
+                    console.error('Error:', xmlHttp.responseText);
+                }
+            };
+
+            // Invia i dati come JSON
+            xmlHttp.send(JSON.stringify(data));
+        });
+    </script>
+</body>
+</html>

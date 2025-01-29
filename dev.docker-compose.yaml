@@ -1,0 +1,34 @@
+services:
+  fastid-logs-db:
+    image: mysql:9.1.0
+    hostname: fastid-logs-db
+    container_name: fastid-logs-db
+    ports:
+    - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: "tappino2025"
+    volumes:
+      - tap_mysql_data:/var/lib/mysql
+      - ./mysql/:/sql-dump/archive
+  
+  fastid-report-spark-processor-notebook:
+    hostname: fastid-report-spark-processor
+    build:
+      context: ./spark-processor
+      dockerfile: notebook.Dockerfile
+    ports:
+      - 8888:8888
+      - 4041:4040
+    command: start.sh jupyter notebook --NotebookApp.token=''
+    volumes:
+      - ./spark-processor:/home/jovyan/work/
+      - sparklibs:/tmp/.ivy2
+
+volumes:
+  tap_mysql_data:
+  sparklibs:
+
+networks:
+  default:
+    name: tap-fastid-report-network
+

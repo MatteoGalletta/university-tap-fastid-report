@@ -1,0 +1,247 @@
+left = [
+    "admiring",
+    "adoring",
+    "affectionate",
+    "agitated",
+    "amazing",
+    "angry",
+    "awesome",
+    "beautiful",
+    "blissful",
+    "bold",
+    "boring",
+    "brave",
+    "busy",
+    "charming",
+    "clever",
+    "cool",
+    "compassionate",
+    "competent",
+    "condescending",
+    "confident",
+    "cranky",
+    "crazy",
+    "dazzling",
+    "determined",
+    "distracted",
+    "dreamy",
+    "eager",
+    "ecstatic",
+    "elastic",
+    "elated",
+    "elegant",
+    "eloquent",
+    "epic",
+    "exciting",
+    "fervent",
+    "festive",
+    "flamboyant",
+    "focused",
+    "friendly",
+    "frosty",
+    "funny",
+    "gallant",
+    "gifted",
+    "goofy",
+    "gracious",
+    "great",
+    "happy",
+    "hardcore",
+    "heuristic",
+    "hopeful",
+    "hungry",
+    "infallible",
+    "inspiring",
+    "intelligent",
+    "interesting",
+    "jolly",
+    "jovial",
+    "keen",
+    "kind",
+    "laughing",
+    "loving",
+    "lucid",
+    "magical",
+    "mystifying",
+    "modest",
+    "musing",
+    "naughty",
+    "nervous",
+    "nice",
+    "nifty",
+    "nostalgic",
+    "objective",
+    "optimistic",
+    "peaceful",
+    "pedantic",
+    "pensive",
+    "practical",
+    "priceless",
+    "quirky",
+    "quizzical",
+    "recursing",
+    "relaxed",
+    "reverent",
+    "romantic",
+    "sad",
+    "serene",
+    "sharp",
+    "silly",
+    "sleepy",
+    "stoic",
+    "strange",
+    "stupefied",
+    "suspicious",
+    "sweet",
+    "tender",
+    "thirsty",
+    "trusting",
+    "unruffled",
+    "upbeat",
+    "vibrant",
+    "vigilant",
+    "vigorous",
+    "wizardly",
+    "wonderful",
+    "xenodochial",
+    "youthful",
+    "zealous",
+    "zen"
+]
+
+right = [
+	"Alaimo",
+	"Alessi",
+	"Allegra",
+	"Barbanera",
+	"Battiato",
+	"Bella",
+	"Bilotta",
+	"Cacciola",
+	"Catalano",
+	"Cavallaro",
+	"Cilia",
+	"Cirmi",
+	"Cutello",
+	"Di Maria",
+	"Di Raimondo",
+	"Esposito",
+	"Falsaperla",
+	"Fanciullo",
+	"Fargetta",
+	"Farinella",
+	"Faro",
+	"Furnari",
+	"Gallo",
+	"Guarnera",
+	"Guarnera",
+	"Leonardi",
+	"Loreto",
+	"Madonia",
+	"Marino",
+	"Messina",
+	"Mongiov",
+	"Mosconi",
+	"Naselli",
+	"Nicotra",
+	"Ortis",
+	"Pappalardo",
+	"Pavone",
+	"Piccitto",
+	"Pulvirenti",
+	"Ragusa",
+	"Riccobene",
+	"Ruggieri",
+	"Russo",
+	"Santamaria",
+	"Santoro",
+	"Santoro",
+	"Spadaro",
+	"Spata",
+	"Stanco",
+	"Tramontana",
+	"Verga",
+	"Viagrande",
+	"Viola",
+	"Zappalà",
+	"Raeli",
+	"Ballatore",
+	"MagnificoRettore"
+]
+
+from random import randint
+
+for r in right:
+
+    name = None
+    while name is None or name == "boring_nicotra": # Salvatore Nicotra is not boring
+        r_idx = randint(0, len(left) - 1)
+        l = left[r_idx]
+        left = left[:r_idx] + left[r_idx+1:]
+
+        name = f"{l}_{r}".lower().replace(" ", "")
+    
+    print(name)
+
+
+'''
+output:
+
+clever_alaimo
+jolly_alessi
+magical_allegra
+quizzical_barbanera
+festive_battiato
+trusting_bella
+nifty_bilotta
+fervent_cacciola
+ecstatic_catalano
+quirky_cavallaro
+charming_cilia
+elastic_cirmi
+brave_cutello
+bold_dimaria
+flamboyant_diraimondo
+reverent_esposito
+amazing_falsaperla
+sharp_fanciullo
+zen_fargetta
+great_farinella
+stoic_faro
+epic_furnari
+lucid_gallo
+loving_guarnera
+exciting_guarnera
+gifted_leonardi
+determined_loreto
+zealous_madonia
+elegant_marino
+nervous_messina
+sad_mongiovì
+relaxed_mosconi
+recursing_naselli
+infallible_nicotra
+naughty_ortis
+interesting_pappalardo
+happy_pavone
+upbeat_piccitto
+keen_pulvirenti
+xenodochial_ragusa
+agitated_riccobene
+intelligent_ruggieri
+pensive_russo
+mystifying_santamaria
+funny_santoro
+laughing_santoro
+hardcore_spadaro
+goofy_spata
+angry_stanco
+vibrant_tramontana
+wonderful_verga
+boring_viagrande
+wizardly_viola
+stupefied_zappalà
+busy_raeli
+sleepy_ballatore
+competent_magnificorettore
+'''

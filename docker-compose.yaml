@@ -1,0 +1,126 @@
+services:
+  
+  fluentd:
+    image: tap2025/fluentd:latest
+    build:
+      context: fluentd
+    ports:
+      - "9880:9880"
+    environment:
+      MYSQL_HOST: fastid-logs-db
+      MYSQL_PORT: 3306
+      MYSQL_DB: DataCollectorServer
+      MYSQL_USERNAME: root
+      MYSQL_PASSWORD: tappino2025
+      MYSQL_FETCH_INTERVAL: 1m #0s
+    depends_on:
+      - kafkaServer
+    volumes:
+      - tap_fluentd_sqlstate_data:/var/run/fluentd
+    #  - ./fluentd_states/:/var/run/fluentd
+  
+  kafkaServer:
+    image: bitnami/kafka:3.8.0
+    hostname: kafkaServer
+    container_name: kafkaServer
+    ports:
+      - '9092:9092'
+    environment:
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_LISTENERS: PLAINTEXT://kafkaServer:9092,CONTROLLER://kafkaServer:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafkaServer:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+    volumes:
+      - tap_kafka_data:/bitnami/kafka
+
+  #kafka-topics.sh --delete --if-exists --topic transactions --bootstrap-server kafkaServer:9092 &&
+  #kafka-topics.sh --delete --if-exists --topic customer-transactions-count --bootstrap-server kafkaServer:9092 &&
+  topics:
+   image: bitnami/kafka:3.8.0
+   command: > 
+     bash -c "
+      kafka-topics.sh --create --if-not-exists --topic transactions --bootstrap-server kafkaServer:9092 --config retention.ms=-1 &&
+      kafka-topics.sh --create --if-not-exists --topic customer-transactions-count --bootstrap-server kafkaServer:9092 --config cleanup.policy=compact --config min.cleanable.dirty.ratio=0.01 --config retention.ms=-1"
+   depends_on:  
+   - kafkaServer
+
+  spark:
+    image: tap2025/spark
+    build: spark-processor
+    hostname: spark
+    container_name: spark
+    volumes:
+      - tap_spark:/tmp
+    environment:
+      - APP_DEBUG_MODE=false
+    command: > 
+      /opt/spark/bin/spark-submit --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp" --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.3,org.postgresql:postgresql:42.7.4,org.elasticsearch:elasticsearch-spark-30_2.12:8.16.2 /opt/spark/main.py
+    #    tail -f /dev/null
+    depends_on:
+      topics:
+        condition: service_completed_successfully
+      elasticsearch:
+        condition: service_started
+      postgres:
+        condition: service_started
+  
+
+  postgres:
+    image: timescale/timescaledb-ha:pg16
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: tappino2025
+      POSTGRES_DB: fastid-report
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - tap_postgresql_data:/home/postgres/pgdata/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.16.2
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    mem_limit: 1 GB
+    ports:
+      - 9200:9200
+    volumes:
+      - tap_elasticsearch_data:/usr/share/elasticsearch/data
+
+  grafana:
+    image: grafana/grafana-enterprise:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+    - '3000:3000'
+    environment:
+      GF_USERS_DEFAULT_LANGUAGE: it-IT
+      #GF_SERVER_DOMAIN: 10.1.103.18
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - tap_grafana_data:/var/lib/grafana
+  
+volumes:
+  tap_spark:
+  tap_kafka_data:
+  tap_fluentd_sqlstate_data:
+  tap_postgresql_data:
+  tap_grafana_data:
+  tap_elasticsearch_data:
+
+networks:
+  default:
+    name: tap-fastid-report-network
+

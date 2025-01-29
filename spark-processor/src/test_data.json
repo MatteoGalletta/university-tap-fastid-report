@@ -1,0 +1,78 @@
+[
+    {
+        "InstanceCode": "Instance1",
+    	"InstanceType": "PRI", 
+        "User_Id": 1, 
+        "User_Name": "testDN", 
+        "Type": "spid", 
+        "AttrClass": "A",
+        "Response_Assertion_AuthnContextClassRef": "https://www.spid.gov.it/SpidL2",
+        "Date": "2024-01-01T08:00:00.000Z", 
+        "Response_Issuer": "IDP1", 
+        "uniqueIdpIdentity": "IDP1_cittadino1"
+    },
+    {
+        "InstanceCode": "Instance1",
+    	"InstanceType": "PRI", 
+        "User_Id": 1, 
+        "User_Name": "testDN", 
+        "Type": "spid", 
+        "AttrClass": "A", 
+        "Response_Assertion_AuthnContextClassRef": "https://www.spid.gov.it/SpidL2",
+        "Date": "2024-02-01T08:00:00.000Z", 
+        "Response_Issuer": "IDP1", 
+        "uniqueIdpIdentity": "IDP1_cittadino1"
+    },
+    {
+        "InstanceCode": "Instance1",
+    	"InstanceType": "PRI", 
+        "User_Id": 1, 
+        "User_Name": "testDN", 
+        "Type": "spid", 
+        "AttrClass": "A", 
+        "Response_Assertion_AuthnContextClassRef": "https://www.spid.gov.it/SpidL2",
+        "Date": "2024-03-01T08:00:00.000Z", 
+        "Response_Issuer": "IDP1", 
+        "uniqueIdpIdentity": "IDP1_cittadino1"
+    },
+
+    
+    {
+        "InstanceCode": "Instance1",
+    	"InstanceType": "PRI", 
+        "User_Id": 1, 
+        "User_Name": "testDN", 
+        "Type": "spid", 
+        "AttrClass": "A", 
+        "Response_Assertion_AuthnContextClassRef": "https://www.spid.gov.it/SpidL3",
+        "Date": "2024-04-01T08:00:00.000Z", 
+        "Response_Issuer": "IDP1", 
+        "uniqueIdpIdentity": "IDP1_cittadino2"
+    },
+
+    
+    {
+        "InstanceCode": "Instance1",
+    	"InstanceType": "PRI", 
+        "User_Id": 1, 
+        "User_Name": "testDN", 
+        "Type": "spid", 
+        "AttrClass": "A", 
+        "Response_Assertion_AuthnContextClassRef": "https://www.spid.gov.it/SpidL3",
+        "Date": "2024-03-01T08:00:00.000Z", 
+        "Response_Issuer": "IDP2", 
+        "uniqueIdpIdentity": "IDP2_cittadino2"
+    },
+    {
+        "InstanceCode": "Instance1",
+    	"InstanceType": "PRI", 
+        "User_Id": 1, 
+        "User_Name": "testDN", 
+        "Type": "spid", 
+        "AttrClass": "R", 
+        "Response_Assertion_AuthnContextClassRef": "https://www.spid.gov.it/SpidL3",
+        "Date": "2024-05-01T08:00:00.000Z", 
+        "Response_Issuer": "IDP2", 
+        "uniqueIdpIdentity": "IDP2_cittadino2"
+    }
+]
