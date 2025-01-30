@@ -22,6 +22,19 @@
   "links": [],
   "panels": [
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 52,
+      "panels": [],
+      "title": "Transazioni",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "ee9s93oslxy4ga"
@@ -49,7 +62,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 0
+        "y": 1
       },
       "id": 15,
       "options": {
@@ -171,9 +184,10 @@
         "h": 8,
         "w": 20,
         "x": 4,
-        "y": 0
+        "y": 1
       },
       "id": 43,
+      "interval": "15m",
       "options": {
         "legend": {
           "calcs": [],
@@ -269,7 +283,7 @@
           "format": "table",
           "hide": false,
           "rawQuery": true,
-          "rawSql": "SELECT\r\n  $__timeGroup(\"Date\", $__interval) as time,\r\n  sum(\"TransactionsCount\") AS \"Transazioni effettive\"\r\nFROM \"TransactionsCount\"\r\nWHERE\r\n($SelectedClienti='*' OR\r\n  \"User_Name\"=$SelectedClienti) AND\r\n$__timeFilter(\"Date\")\r\nGROUP BY time\r\nORDER BY time",
+          "rawSql": "WITH time_series AS (\r\n  SELECT generate_series(\r\n    date_bin('$__interval', $__timeFrom(), '2000-1-1'),\r\n    date_bin('$__interval', $__timeTo(), '2000-1-1'),\r\n    INTERVAL '$__interval'\r\n  ) AS time\r\n)\r\nSELECT \r\n  ts.time,\r\n  COALESCE(sum(tc.\"TransactionsCount\"), 0) AS \"Transazioni effettive\"\r\nFROM time_series ts\r\nLEFT JOIN (\r\n  SELECT \r\n    $__timeGroup(\"Date\", $__interval) as time,\r\n    sum(\"TransactionsCount\") AS \"TransactionsCount\"\r\n  FROM \"TransactionsCount\"\r\n  WHERE \r\n    ($SelectedClienti='*' OR \"User_Name\"=$SelectedClienti)\r\n    AND $__timeFilter(\"Date\")\r\n  GROUP BY time\r\n) tc ON ts.time = tc.time\r\nGROUP BY ts.time\r\nORDER BY ts.time;",
           "refId": "C",
           "sql": {
             "columns": [
@@ -321,7 +335,7 @@
         "h": 4,
         "w": 4,
         "x": 0,
-        "y": 4
+        "y": 5
       },
       "id": 51,
       "options": {
@@ -379,271 +393,12 @@
       "type": "stat"
     },
     {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "ee9s93oslxy4ga"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisBorderShow": false,
-            "axisCenteredZero": true,
-            "axisColorMode": "text",
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "barWidthFactor": 0.6,
-            "drawStyle": "line",
-            "fillOpacity": 0,
-            "gradientMode": "none",
-            "hideFrom": {
-              "legend": false,
-              "tooltip": false,
-              "viz": false
-            },
-            "insertNulls": false,
-            "lineInterpolation": "linear",
-            "lineWidth": 1,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "auto",
-            "spanNulls": false,
-            "stacking": {
-              "group": "A",
-              "mode": "none"
-            },
-            "thresholdsStyle": {
-              "mode": "off"
-            }
-          },
-          "mappings": [],
-          "max": -1.5,
-          "min": 1.5,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 20,
-        "x": 0,
-        "y": 8
-      },
-      "id": 41,
-      "options": {
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom",
-          "showLegend": true
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
-        }
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "ee9s93oslxy4ga"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  $__timeGroupAlias(ptc.\"Date\", $__interval),\r\n  AVG(ABS(ptc.\"PredictedTransactionsCount\" - tc.\"TransactionsCount\") / tc.\"TransactionsCount\") AS predicted_increase_perc\r\nFROM \"PredictedTransactionsCount\" ptc\r\nJOIN \"TransactionsCount\" tc ON tc.\"Date\" = ptc.\"Date\" AND tc.\"User_Name\" = ptc.\"User_Name\"\r\nWHERE\r\n($SelectedClienti='*' OR\r\n  ptc.\"User_Name\"=$SelectedClienti) AND\r\n  ptc.\"PredictedTransactionsCount\" != 0 AND\r\n  ptc.\"IsAfterRetrain\" = FALSE AND\r\n$__timeFilter(ptc.\"Date\")\r\nGROUP BY time\r\nORDER BY time desc",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "ee9s93oslxy4ga"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "SELECT\r\n  $__timeGroupAlias(ptc.\"Date\", $__interval),\r\n  AVG((ptc.\"PredictedTransactionsCount\" - tc.\"TransactionsCount\") / ABS(tc.\"TransactionsCount\"))  AS predicted_corrected_increase_perc\r\nFROM \"PredictedTransactionsCount\" ptc\r\nJOIN \"TransactionsCount\" tc ON tc.\"Date\" = ptc.\"Date\" AND tc.\"User_Name\" = ptc.\"User_Name\"\r\nWHERE\r\n($SelectedClienti='*' OR\r\n  ptc.\"User_Name\"=$SelectedClienti) AND\r\n  ptc.\"PredictedTransactionsCount\" != 0 AND\r\n  ptc.\"IsAfterRetrain\" = TRUE AND\r\n$__timeFilter(ptc.\"Date\")\r\nGROUP BY time\r\nORDER BY time desc",
-          "refId": "B",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "Prediction error",
-      "type": "timeseries"
-    },
-    {
-      "datasource": {
-        "type": "grafana-postgresql-datasource",
-        "uid": "ee9s93oslxy4ga"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "percentunit"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 4,
-        "x": 20,
-        "y": 8
-      },
-      "id": 44,
-      "options": {
-        "minVizHeight": 75,
-        "minVizWidth": 75,
-        "orientation": "auto",
-        "reduceOptions": {
-          "calcs": [
-            "firstNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "sizing": "auto"
-      },
-      "pluginVersion": "11.4.0",
-      "targets": [
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "ee9s93oslxy4ga"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "WITH stats AS (\r\n  SELECT\r\n    \"PredictedTransactionsCount\", \"TransactionsCount\"\r\n  FROM \"PredictedTransactionsCount\" ptc\r\n  JOIN \"TransactionsCount\" tc ON tc.\"User_Name\" = ptc.\"User_Name\" AND tc.\"Date\" = ptc.\"Date\"\r\n  WHERE\r\n  ($SelectedClienti='*' OR\r\n    ptc.\"User_Name\"=$SelectedClienti) AND\r\n    ptc.\"PredictedTransactionsCount\" != 0 AND\r\n    tc.\"TransactionsCount\" != 0 AND\r\n    ptc.\"IsAfterRetrain\" = FALSE AND\r\n  $__timeFilter(ptc.\"Date\")\r\n)\r\nSELECT\r\n  POWER(CORR(\"PredictedTransactionsCount\", \"TransactionsCount\"), 2) AS previsione\r\nFROM stats;",
-          "refId": "A",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        },
-        {
-          "datasource": {
-            "type": "grafana-postgresql-datasource",
-            "uid": "ee9s93oslxy4ga"
-          },
-          "editorMode": "code",
-          "format": "table",
-          "hide": false,
-          "rawQuery": true,
-          "rawSql": "WITH stats AS (\r\n  SELECT\r\n    \"PredictedTransactionsCount\", \"TransactionsCount\"\r\n  FROM \"PredictedTransactionsCount\" ptc\r\n  JOIN \"TransactionsCount\" tc ON tc.\"User_Name\" = ptc.\"User_Name\" AND tc.\"Date\" = ptc.\"Date\"\r\n  WHERE\r\n  ($SelectedClienti='*' OR\r\n    ptc.\"User_Name\"=$SelectedClienti) AND\r\n    ptc.\"PredictedTransactionsCount\" != 0 AND\r\n    tc.\"TransactionsCount\" != 0 AND\r\n    ptc.\"IsAfterRetrain\" = TRUE AND\r\n  $__timeFilter(ptc.\"Date\")\r\n)\r\nSELECT\r\n  POWER(CORR(\"PredictedTransactionsCount\", \"TransactionsCount\"), 2) AS previsione\r\nFROM stats;",
-          "refId": "B",
-          "sql": {
-            "columns": [
-              {
-                "parameters": [],
-                "type": "function"
-              }
-            ],
-            "groupBy": [
-              {
-                "property": {
-                  "type": "string"
-                },
-                "type": "groupBy"
-              }
-            ],
-            "limit": 50
-          }
-        }
-      ],
-      "title": "R²",
-      "type": "gauge"
-    },
-    {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 9
       },
       "id": 16,
       "panels": [],
@@ -675,7 +430,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 19
+        "y": 10
       },
       "id": 46,
       "options": {
@@ -775,7 +530,7 @@
         "h": 6,
         "w": 4,
         "x": 4,
-        "y": 19
+        "y": 10
       },
       "id": 49,
       "options": {
@@ -884,7 +639,7 @@
         "h": 12,
         "w": 9,
         "x": 8,
-        "y": 19
+        "y": 10
       },
       "id": 50,
       "options": {
@@ -969,7 +724,7 @@
         "h": 12,
         "w": 7,
         "x": 17,
-        "y": 19
+        "y": 10
       },
       "id": 12,
       "options": {
@@ -1055,7 +810,7 @@
         "h": 6,
         "w": 4,
         "x": 0,
-        "y": 25
+        "y": 16
       },
       "id": 47,
       "options": {
@@ -1141,7 +896,7 @@
         "h": 6,
         "w": 4,
         "x": 4,
-        "y": 25
+        "y": 16
       },
       "id": 48,
       "options": {
@@ -1208,7 +963,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 31
+        "y": 22
       },
       "id": 13,
       "panels": [],
@@ -1251,8 +1006,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1267,7 +1021,7 @@
         "h": 7,
         "w": 9,
         "x": 0,
-        "y": 32
+        "y": 23
       },
       "id": 3,
       "options": {
@@ -1358,8 +1112,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1374,7 +1127,7 @@
         "h": 7,
         "w": 10,
         "x": 9,
-        "y": 32
+        "y": 23
       },
       "id": 30,
       "options": {
@@ -1465,8 +1218,7 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
-                "value": null
+                "color": "green"
               },
               {
                 "color": "red",
@@ -1481,7 +1233,7 @@
         "h": 7,
         "w": 5,
         "x": 19,
-        "y": 32
+        "y": 23
       },
       "id": 31,
       "options": {
@@ -1538,6 +1290,7 @@
     }
   ],
   "preload": false,
+  "refresh": "5s",
   "schemaVersion": 40,
   "tags": [],
   "templating": {
@@ -1545,8 +1298,8 @@
       {
         "allValue": "'*'",
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "infallible_nicotra",
+          "value": "infallible_nicotra"
         },
         "definition": "SELECT \"Cliente\" FROM \"Clienti\"",
         "description": "",
@@ -1563,13 +1316,13 @@
     ]
   },
   "time": {
-    "from": "2023-09-17T16:49:59.709Z",
-    "to": "2024-12-14T05:01:43.050Z"
+    "from": "2024-12-06T06:48:29.357Z",
+    "to": "2024-12-06T10:12:45.704Z"
   },
   "timepicker": {},
-  "timezone": "",
+  "timezone": "utc",
   "title": "FastID - Report",
   "uid": "fe67xcj95l728b",
-  "version": 35,
+  "version": 36,
   "weekStart": ""
 }

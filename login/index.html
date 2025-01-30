@@ -124,11 +124,28 @@
     </div>
 
     <script>
+
+        function formatDate(date) {
+            const pad = (num, size) => ('000' + num).slice(size * -1);
+            const dateStr = date.getFullYear() + '-' +
+                pad(date.getMonth() + 1, 2) + '-' +
+                pad(date.getDate(), 2) + ' ' +
+                pad(date.getHours(), 2) + ':' +
+                pad(date.getMinutes(), 2) + ':' +
+                pad(date.getSeconds(), 2) + '.' +
+                pad(date.getMilliseconds(), 3) + '000+' +
+                pad(Math.abs(date.getTimezoneOffset() / 60), 2) + '00';
+            return dateStr;
+        }
+
         document.getElementById('myForm').addEventListener('submit', function(event) {
             event.preventDefault();  // Evita il comportamento predefinito del form
 
             const datetime = document.getElementById('datetime').value;
             const username = document.getElementById('username').value;
+
+            const date = new Date(datetime);
+            const formattedDate = formatDate(date);
 
             const data = {
             	Date: datetime,
@@ -137,9 +154,9 @@
                 User_Id: 5,
                 User_Name: username,
                 Type: 'spid',
-                AttrSet: 'A',
-                Response_Assertion_AuthnContextClassRef: 'L2',
-                uniqueIdpIdentity: 'PTIT1234567890'
+                AttrSet: 'min',
+                Response_Assertion_AuthnContextClassRef: 'https://www.spid.gov.it/SpidL2',
+                uniqueIdpIdentity: 'PTIT*********'
             };
 
             const url = 'http://localhost:9880/transactions';

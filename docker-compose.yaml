@@ -42,7 +42,7 @@ services:
    command: > 
      bash -c "
       kafka-topics.sh --create --if-not-exists --topic transactions --bootstrap-server kafkaServer:9092 --config retention.ms=-1 &&
-      kafka-topics.sh --create --if-not-exists --topic customer-transactions-count --bootstrap-server kafkaServer:9092 --config cleanup.policy=compact --config min.cleanable.dirty.ratio=0.01 --config retention.ms=-1"
+      kafka-topics.sh --create --if-not-exists --topic customer-transactions-count --bootstrap-server kafkaServer:9092 --config retention.ms=-1"
    depends_on:  
    - kafkaServer
 
@@ -56,8 +56,8 @@ services:
     environment:
       - APP_DEBUG_MODE=false
     command: > 
-      /opt/spark/bin/spark-submit --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp" --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.3,org.postgresql:postgresql:42.7.4,org.elasticsearch:elasticsearch-spark-30_2.12:8.16.2 /opt/spark/main.py
-    #    tail -f /dev/null
+     /opt/spark/bin/spark-submit --conf spark.driver.extraJavaOptions="-Divy.cache.dir=/tmp -Divy.home=/tmp" --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.4.3,org.postgresql:postgresql:42.7.4,org.elasticsearch:elasticsearch-spark-30_2.12:8.16.2 /opt/spark/main.py
+        # tail -f /dev/null
     depends_on:
       topics:
         condition: service_completed_successfully

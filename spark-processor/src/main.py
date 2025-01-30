@@ -60,8 +60,6 @@ df_transactions_raw = spark.readStream \
 	.load()
 	# .option("startingOffsets", "{\"transactions\":{\"0\":589000}}") \
 
-'''
-
 # %%
 _df_transactions = df_transactions_raw \
 		.selectExpr("CAST(value AS STRING)") \
@@ -232,7 +230,7 @@ if DEBUG_MODE:
 
 # %%
 df_interval_count = df_transactions \
-	.groupBy("User_Name", F.window("Date", "15 minute")) \
+    .groupBy("User_Name", F.window("Date", "15 minute")) \
 	.agg(F.count("*").alias("TransactionsCount")) \
 	.withColumn("Date", F.col("window.start")) \
 	.select("Date", "User_Name", "TransactionsCount")
@@ -258,19 +256,16 @@ if DEBUG_MODE:
 	except KeyboardInterrupt:
 		query.stop()
 
-
-
 # %%
 query = df_interval_count \
-    .withColumn("key", F.concat(F.col("User_Name"), F.lit("_"), F.col("Date"))) \
-    .select(F.col("key"), F.to_json(F.struct("Date", "User_Name", "TransactionsCount")).alias("value")) \
+	.withColumn("key", F.col("User_Name")) \
+	.select(F.col("key"), F.to_json(F.struct("Date", "User_Name", "TransactionsCount")).alias("value")) \
     .writeStream \
-    .outputMode("append") \
-    .format("kafka") \
-    .option("kafka.bootstrap.servers", "kafkaServer:9092") \
     .option("checkpointLocation", "/tmp/checkpoint-transactions-count") \
-    .option("topic", "customer-transactions-count") \
-    .start()
+	.format("kafka") \
+	.option("kafka.bootstrap.servers", "kafkaServer:9092") \
+	.option("topic", "customer-transactions-count") \
+	.start()
 
 if DEBUG_MODE:
     try:
@@ -282,8 +277,6 @@ if DEBUG_MODE:
 # print("Awaiting termination...")
 #spark.streams.awaitAnyTermination()
 # print("Terminated.")
-
-'''
 
 # %% [markdown]
 # # Online Training
@@ -304,8 +297,7 @@ df_transactions_count = df_transactions_count_raw \
 	.selectExpr("CAST(value AS STRING)") \
 	.select(from_json(col("value"), "Date TIMESTAMP, User_Name STRING, TransactionsCount INT").alias("data")) \
 	.select("data.*") \
-	.filter(F.col("Date") > "2024-01-01")
-	#.filter(F.col("User_Name") == "infallible_nicotra")
+	.filter(F.col("Date") > "2024-12-01")
 
 # %%
 from pyspark.sql.streaming.state import GroupStateTimeout
@@ -331,26 +323,35 @@ def update_user_state(key, data, state):
 		X = extract_features(transactions_count["Date"])
 		y = transactions_count["TransactionsCount"].values
 
+		#with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+		#	print({
+		#		"[TAP]_User_Name": key[0],
+		#		"X": X.to_dict(),
+		#		"y": y.tolist(),
+		#	})
+
 		model = Pipeline([
-			("lr", LinearRegression()),
-			#("poly", PolynomialFeatures(degree=2)),
-			#("scaler", StandardScaler()),  # Add scaling
-			#("rf", RandomForestRegressor(n_estimators=100, random_state=42))
+			#("lr", LinearRegression()),
+			("poly", PolynomialFeatures(degree=2)),
+			("scaler", StandardScaler()),  # Add scaling
+			("rf", RandomForestRegressor(n_estimators=100, random_state=42))
 		])
 		model.fit(X, y)
 		
 		X_new = extract_features(toPredictDates)
-		Y_new = model.predict(X_new)
+		y_new = model.predict(X_new)
 		
-		#print({
-		#	"[TAP]_User_Name": key[0],
-		#	"X": X.to_dict(),
-		#	"y": y.tolist(),
-		#	"X_new": X_new.to_dict(),
-		#	"Y_new": Y_new.tolist()
-		#})
+		#with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+		#	print({
+		#		"[TAP]_User_Name": key[0],
+		#		"X": X.to_dict(),
+		#		"y": y.tolist(),
+		#		"X_new": X_new.to_dict(),
+		#		"y_new": y_new.tolist()
+		#	})
 		
-		return [max(0, int(round(x))) for x in Y_new]
+		#print(f"Using {X} of {y} to predict {X_new} of {y_new} ")
+		return [max(0, int(round(x))) for x in y_new]
 
 	if state.hasTimedOut: # never
 		state.remove()
@@ -360,7 +361,7 @@ def update_user_state(key, data, state):
 
 			if state.exists:
 				(past_transactions, last_date) = state.get
-				#(f"[TAP] got state of {key[0]}:", past_transactions, last_date)
+				#print(f"[TAP] got state of {key[0]}:", past_transactions, last_date)
 				past_transactions_list = [{"Date": k, "TransactionsCount": v} for k, v in past_transactions.items()]
 				df_past_transactions = pd.DataFrame(past_transactions_list)
 			else:
@@ -369,16 +370,18 @@ def update_user_state(key, data, state):
 				last_date = None
 
 			df_batch = pd.DataFrame(batch)
-			min_date = (last_date + timedelta(minutes=5)) if last_date is not None else df_batch["Date"].min()
+			min_date = (last_date + timedelta(minutes=15)) if last_date is not None else df_batch["Date"].min()
 			max_date = df_batch["Date"].max()
 			if last_date is not None and last_date > min_date:
 				print("[TAP]: WARNING: last_date > min_date [", last_date, "|", min_date, "]")
 
-			all_dates = pd.date_range(start=min_date, end=max_date, freq='5T')
+			all_dates = pd.date_range(start=min_date, end=max_date, freq='15T')
 			df_all_dates = pd.DataFrame(all_dates, columns=["Date"])
 
 			df_batch = pd.merge(df_all_dates, df_batch, on="Date", how="left").fillna(0)
 			df_batch["User_Name"] = key[0]
+
+			df_batch = df_batch.sort_values(by="Date")
 			
 			start_time = datetime.now()
 			print(f"[TAP] Starting processing of user {key[0]} and batch of {len(df_batch)} (original length of {len(batch)}) transactions counts ranging from {min_date} to {max_date}...")
@@ -410,10 +413,16 @@ def update_user_state(key, data, state):
 
 				df_past_transactions = pd.concat([df_past_transactions, pd.DataFrame.from_records([{
 					"Date": row["Date"],
-					"TransactionsCount": row["TransactionsCount"]
+					"TransactionsCount": int(row["TransactionsCount"])
 				}])])
 
 				df_past_transactions = df_past_transactions[df_past_transactions["Date"] > row["Date"] - timedelta(days=30)]
+
+				# we print the df if over 24*4 rows
+				#if len(df_past_transactions) > 24*4:
+				#	with pd.option_context('display.max_rows', None, 'display.max_columns', None):  # more options can be specified also
+				#		print(f"[TAP] df_past_transactions for user {key[0]}:", df_past_transactions)
+				#	exit(1)
 
 				last_date = row["Date"] # KISS
 			
@@ -422,6 +431,7 @@ def update_user_state(key, data, state):
 			
 			# we save all transactions in state
 			x = pd.Series(df_past_transactions['TransactionsCount'].values, index=df_past_transactions['Date']).to_dict()
+			#print(f"[TAP] Saving state of {key[0]}:", x)
 			state.update((x, last_date))
 		
 			elapsed_time = datetime.now() - start_time

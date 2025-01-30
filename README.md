@@ -1,6 +1,8 @@
 # fastid-report-app
 
-#unict university project for Technologies for Advanced Programming.
+![Transactions Chart](chart.jpg)
+
+University project for Technologies for Advanced Programming.
 
 FastID is a SaaS that allows companies to build easily solutions that integrate with SPID and CIE authentication.
 This project is a pipeline for the FastID service that allows predictive scaling by predicting what will be the traffic in the following 15 minutes.
